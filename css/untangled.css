@@ -1,0 +1,8 @@
+#container {
+  width: 770px;
+  margin: auto;
+}
+
+canvas {
+  background: #333;
+}
