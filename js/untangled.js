@@ -12,7 +12,7 @@ function Circle(x, y, radius) {
 
 function Line(startPoint, endPoint, thickness) {
   this.startPoint = startPoint;
-  this.endPoitn = endPoint;
+  this.endPoint = endPoint;
   this.thickness = thickness;
 }
 
@@ -33,6 +33,45 @@ function drawLine(ctx, x1, y1, x2, y2, thickness) {
   ctx.stroke();
 }
 
+function clear(ctx) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+function connectCircles() {
+  // connect the circles to each others with lines
+  untangledGame.lines.length = 0;
+  for (var i=0; i<untangledGame.circles.length; i++) {
+    var startPoint = untangledGame.circles[i];
+    for (var j=0; j<i; j++) {
+      var endPoint = untangledGame.circles[j];
+      // drawLine(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y, untangledGame.thinLineThickness);
+      untangledGame.lines.push(new Line(startPoint, endPoint, untangledGame.thinLineThickness));
+    }
+  }
+}
+
+function gameloop() {
+  // get the reference of the canvas element and the drawing context
+  var canvas = document.getElementById("game");
+  var ctx = canvas.getContext('2d');
+  // clear the canvas before redrawing
+  clear(ctx);
+  // draw all the remembered line
+  for (var i=0; i<untangledGame.lines.length; i++) {
+    var line = untangledGame.lines[i];
+    var startPoint = line.startPoint;
+    var endPoint = line.endPoint;
+    var thickness = line.thickness;
+    drawLine(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y, thickness);
+  }
+  
+  // draw all remembered circles
+  for (var i=0; i<untangledGame.circles.length; i++) {
+    var circle = untangledGame.circles[i];
+    drawCircle(ctx, circle.x, circle.y, circle.radius);
+  }
+}
+
 $(function() {
   var canvas = document.getElementById("game");
   var ctx = canvas.getContext("2d");
@@ -50,12 +89,39 @@ $(function() {
     untangledGame.circles.push(new Circle(x, y, circleRadius));
   }
   
-  for (var i=0; i<untangledGame.circles.length; i++) {
-    var startPoint = untangledGame.circles[i];
-    for (var j=0; j<i; j++) {
-      var endPoint = untangledGame.circles[j];
-      drawLine(ctx, startPoint.x, startPoint.y, endPoint.x, endPoint.y, untangledGame.thinLineThickness);
-      untangledGame.lines.push(new Line(startPoint, endPoint, untangledGame.thinLineThickness));
+  // Add mouseEvent listerner to canvas
+  $('#game').mousedown(function(e) {
+    var canvasPosition = $(this).offset();
+    var mouseX = e.offsetX || 0;
+    var mouseY = e.offsetY || 0;
+    
+    for (var i=0; i<untangledGame.circles.length; i++) {
+      var circleX = untangledGame.circles[i].x;
+      var circleY = untangledGame.circles[i].y;
+      var radius = untangledGame.circles[i].radius;
+      
+      if (Math.pow(mouseX-circleX, 2) + Math.pow(mouseY-circleY, 2) < Math.pow(radius, 2)) {
+        untangledGame.targetCircle = i;
+        break;
+      }
     }
-  }
+  });
+  
+  $('#game').mousemove(function(e) {
+    if (untangledGame.targetCircle != undefined) {
+      var canvasPosition = $(this).offset();
+      var mouseX = e.offsetX || 0;
+      var mouseY = e.offsetY || 0;
+      var radius = untangledGame.circles[untangledGame.targetCircle].radius;
+      untangledGame.circles[untangledGame.targetCircle] = new Circle(mouseX, mouseY, radius);
+    }
+    connectCircles();
+  });
+  
+  $('#game').mouseup(function(e) {
+    untangledGame.targetCircle = undefined;
+  });
+  
+  // setup an interval to loop the game 
+  setInterval(gameloop, 30);
 });
