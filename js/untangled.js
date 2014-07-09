@@ -125,6 +125,12 @@ function gameloop() {
   var ctx = canvas.getContext('2d');
   // clear the canvas before redrawing
   clear(ctx);
+  // draw gradient background
+  var bg_gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+  bg_gradient.addColorStop(0, '#000000');
+  bg_gradient.addColorStop(1, '#555555');
+  ctx.fillStyle = bg_gradient;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   // draw all the remembered line
   for (var i=0; i<untangledGame.lines.length; i++) {
     var line = untangledGame.lines[i];
