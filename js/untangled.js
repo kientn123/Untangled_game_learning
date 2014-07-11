@@ -3,7 +3,8 @@ var untangledGame = {
   thinLineThickness: 1,
   boldLineThickness: 5,
   lines: [],
-  currentLevel: 0
+  currentLevel: 0,
+  progressPercentage: 0
 };
 
 untangledGame.levels = 
@@ -85,7 +86,12 @@ function Line(startPoint, endPoint, thickness) {
 }
 
 function drawCircle(ctx, x, y, radius) {
-  ctx.fillStyle = "rgba(200, 200, 100, .6)";
+  // ctx.fillStyle = "rgba(200, 200, 100, .6)";
+  // prepare the radial gradients fill style
+  var circle_gradient = ctx.createRadialGradient(x-3, y-3, 1, x, y, radius);
+  circle_gradient.addColorStop(0, '#fff');
+  circle_gradient.addColorStop(1, '#cc0');
+  ctx.fillStyle = circle_gradient;
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI*2, true);
   ctx.closePath();
@@ -145,6 +151,17 @@ function gameloop() {
     var circle = untangledGame.circles[i];
     drawCircle(ctx, circle.x, circle.y, circle.radius);
   }
+  
+  ctx.font = '26px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Untangled Game', ctx.canvas.width/2, 50);
+  
+  // draw the level progress text
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('Puzzle ' + untangledGame.currentLevel + ", Completeness: "
+  + untangledGame.progressPercentage + "%", 20, ctx.canvas.height - 5);
 }
 
 function isIntersect(line1, line2) {
