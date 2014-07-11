@@ -38,7 +38,7 @@ untangledGame.levels =
   {
     'level': 2,
     'circles': [{'x': 92, 'y': 85},
-               {'x': 253, 'y': 13},
+               {'x': 253, 'y': 35},
                {'x': 393, 'y': 86},
                {'x': 390, 'y': 214},
                {'x': 248, 'y': 275},
@@ -131,12 +131,14 @@ function gameloop() {
   var ctx = canvas.getContext('2d');
   // clear the canvas before redrawing
   clear(ctx);
+  // draw the image background
+  ctx.drawImage(untangledGame.background, 0, 0, ctx.canvas.width, ctx.canvas.height);
   // draw gradient background
-  var bg_gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-  bg_gradient.addColorStop(0, '#000000');
-  bg_gradient.addColorStop(1, '#555555');
-  ctx.fillStyle = bg_gradient;
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  // var bg_gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+  // bg_gradient.addColorStop(0, '#000000');
+  // bg_gradient.addColorStop(1, '#555555');
+  // ctx.fillStyle = bg_gradient;
+  // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   // draw all the remembered line
   for (var i=0; i<untangledGame.lines.length; i++) {
     var line = untangledGame.lines[i];
@@ -152,16 +154,17 @@ function gameloop() {
     drawCircle(ctx, circle.x, circle.y, circle.radius);
   }
   
-  ctx.font = '26px Arial';
+  ctx.font = '26px "Indie Flower"';
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
   ctx.fillStyle = '#fff';
-  ctx.fillText('Untangled Game', ctx.canvas.width/2, 50);
+  ctx.fillText('Untangled Game', ctx.canvas.width/2, 25);
   
   // draw the level progress text
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
   ctx.fillText('Puzzle ' + untangledGame.currentLevel + ", Completeness: "
-  + untangledGame.progressPercentage + "%", 20, ctx.canvas.height - 5);
+  + untangledGame.progressPercentage + "%", 50, ctx.canvas.height - 20);
 }
 
 function isIntersect(line1, line2) {
@@ -288,6 +291,22 @@ $(function() {
     checkLevelCompleteness();
   });
   
-  // setup an interval to loop the game 
-  setInterval(gameloop, 30);
+  var bg_gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+  bg_gradient.addColorStop(0, '#ccc');
+  bg_gradient.addColorStop(1, 'efefef');
+  ctx.fillStyle = bg_gradient;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.font = "34px 'Indie Flower'";
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#333';
+  ctx.fillText("Loading...", ctx.canvas.width/2, ctx.canvas.height/2);
+  // load the background image
+  untangledGame.background = new Image();
+  untangledGame.background.onload = function() {
+      setInterval(gameloop, 30);
+  };
+  untangledGame.background.onerror = function() {
+    consolo.log("error loading the image");
+  };
+  untangledGame.background.src = 'images/board.jpeg';
 });
